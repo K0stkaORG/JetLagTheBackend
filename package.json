@@ -1,0 +1,35 @@
+{
+	"name": "jet-lag-the-backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "./dist/index.ts",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"lint": "npx eslint ./src/**",
+		"lint:fix": "npx eslint ./src/** --fix",
+		"start": "node ./dist/index.js",
+		"build": "tsc --project tsconfig.json",
+		"migrate": "npx drizzle-kit push",
+		"tinker": "npx drizzle-kit studio"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.11.1",
+	"dependencies": {
+		"@types/eslint": "^9.6.1",
+		"@types/express": "^5.0.2",
+		"@types/node": "^22.15.29",
+		"dotenv": "^16.5.0",
+		"drizzle-orm": "^0.44.2",
+		"eslint": "^9.28.0",
+		"express": "^5.1.0",
+		"pg": "^8.16.0",
+		"typescript": "^5.8.3"
+	},
+	"devDependencies": {
+		"@types/pg": "^8.15.4",
+		"drizzle-kit": "^0.31.1",
+		"tsx": "^4.19.4"
+	}
+}
