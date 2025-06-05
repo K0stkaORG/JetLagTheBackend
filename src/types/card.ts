@@ -1,0 +1,51 @@
+type CardBase = {
+	id: number;
+	name: string;
+	description: string;
+	type: "absolute_time_bonus" | "relative_time_bonus" | "curse" | "veto" | "mimic" | "reroll" | "randomize_answer";
+	data: any;
+};
+
+export type Card = TimeBonusCard | RelativeTimeBonusCard | CurseCard | VetoCard | MimicCard | RerollCard | RandomizeAnswerCard;
+
+export type TimeBonusCard = CardBase & {
+	type: "absolute_time_bonus";
+	data: {
+		seconds: number;
+	};
+};
+
+export type RelativeTimeBonusCard = CardBase & {
+	type: "relative_time_bonus";
+	data: {
+		percentage: number;
+	};
+};
+
+export type CurseCard = CardBase & {
+	type: "curse";
+	data: null;
+};
+
+export type VetoCard = CardBase & {
+	type: "veto";
+	data: null;
+};
+
+export type MimicCard = CardBase & {
+	type: "mimic";
+	data: null;
+};
+
+export type RerollCard = CardBase & {
+	type: "reroll";
+	data: {
+		throw_away: number;
+		draw: number;
+	};
+};
+
+export type RandomizeAnswerCard = CardBase & {
+	type: "randomize_answer";
+	data: null;
+};
