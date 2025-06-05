@@ -21,6 +21,7 @@
 		"@types/express": "^5.0.2",
 		"@types/node": "^22.15.29",
 		"bcrypt": "^6.0.0",
+		"cors": "^2.8.5",
 		"dotenv": "^16.5.0",
 		"drizzle-orm": "^0.44.2",
 		"eslint": "^9.28.0",
@@ -33,6 +34,7 @@
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.2",
+		"@types/cors": "^2.8.18",
 		"@types/pg": "^8.15.4",
 		"drizzle-kit": "^0.31.1",
 		"tsx": "^4.19.4"
