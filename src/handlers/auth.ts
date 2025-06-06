@@ -10,20 +10,20 @@ export const handleRegistrationAttempt = handler(
 	z.object({
 		nickname: z
 			.string()
-			.min(3, "Nickname must be at least 3 characters long")
-			.max(20, "Nickname must be at most 20 characters long")
-			.regex(/^[a-zA-Z0-9_ ]+$/, "Nickname can only contain letters, numbers, spaces and underscores"),
+			.min(3, "Přezdívka musí mít alespoň 3 znaky")
+			.max(20, "Přezdívka může mít maximálně 20 znaků")
+			.regex(/^[a-zA-Z0-9_ ]+$/, "Přezdívka může obsahovat pouze písmena, čísla, mezery a podtržítka"),
 		password: z
 			.string()
-			.min(8, "Password must be at least 8 characters long")
-			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
+			.min(8, "Heslo musí mít alespoň 8 znaků")
+			.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, "Heslo musí obsahovat alespoň jedno velké písmeno, jedno malé písmeno a jedno číslo"),
 	}),
 	async (data) => {
 		const existingUser = await db.query.Users.findFirst({
 			where: eq(Users.nickname, data.nickname),
 		});
 
-		if (existingUser) return UserError("User with this nickname already exists");
+		if (existingUser) return UserError("Uživatel s touto přezdívkou již existuje");
 
 		const newUser = {
 			nickname: data.nickname,
@@ -39,15 +39,15 @@ export const handleRegistrationAttempt = handler(
 
 export const handleLoginAttempt = handler(
 	z.object({
-		nickname: z.string().min(1, "Nickname is required"),
-		password: z.string().min(1, "Password is required"),
+		nickname: z.string(),
+		password: z.string(),
 	}),
 	async ({ nickname, password }) => {
 		const user = await db.query.Users.findFirst({
 			where: eq(Users.nickname, nickname),
 		});
 
-		if (!user || !(await bcrypt.compare(password, user.passwordHash))) return UserError("Invalid nickname or password");
+		if (!user || !(await bcrypt.compare(password, user.passwordHash))) return UserError("Neplatná přezdívka nebo heslo");
 
 		return Success({
 			id: user.id,

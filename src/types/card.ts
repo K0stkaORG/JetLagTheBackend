@@ -1,12 +1,14 @@
+import { Effect } from ".";
+
 type CardBase = {
 	id: number;
 	name: string;
 	description: string;
-	type: "absolute_time_bonus" | "relative_time_bonus" | "curse" | "veto" | "mimic" | "reroll" | "randomize_answer";
+	type: "absolute_time_bonus" | "relative_time_bonus" | "curse" | "veto" | "mimic" | "reroll" | "randomize_answer" | "effect";
 	data: any;
 };
 
-export type Card = TimeBonusCard | RelativeTimeBonusCard | CurseCard | VetoCard | MimicCard | RerollCard | RandomizeAnswerCard;
+export type Card = TimeBonusCard | RelativeTimeBonusCard | CurseCard | VetoCard | MimicCard | RerollCard | RandomizeAnswerCard | EffectCard;
 
 export type TimeBonusCard = CardBase & {
 	type: "absolute_time_bonus";
@@ -24,7 +26,9 @@ export type RelativeTimeBonusCard = CardBase & {
 
 export type CurseCard = CardBase & {
 	type: "curse";
-	data: null;
+	data: {
+		effect: Effect;
+	};
 };
 
 export type VetoCard = CardBase & {
@@ -48,4 +52,11 @@ export type RerollCard = CardBase & {
 export type RandomizeAnswerCard = CardBase & {
 	type: "randomize_answer";
 	data: null;
+};
+
+export type EffectCard = CardBase & {
+	type: "effect";
+	data: {
+		effect: Effect;
+	};
 };

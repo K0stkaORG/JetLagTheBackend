@@ -4,12 +4,8 @@ export type Question = {
 	id: number;
 	text: string;
 	type: QuestionType;
-	price: QuestionPrice;
+	price_draw: number;
+	price_keep: number;
 };
 
 export type QuestionType = "radar" | "thermometer" | "photo" | "matching";
-
-export type QuestionPrice = {
-	draw: number;
-	keep: number;
-};

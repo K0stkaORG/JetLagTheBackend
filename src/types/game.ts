@@ -7,6 +7,7 @@ export type Game = {
 	hidersTeamLeader: User["id"];
 	seekers: User["id"][];
 	state: "planed" | "hiding_phase" | "main_phase" | "paused" | "finished";
+	startsAt: Date;
 	duration: number | null;
 	hidingSpot: Coordinates | null;
 	hand: Card["id"][];

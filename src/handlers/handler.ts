@@ -32,7 +32,7 @@ export const handler =
 		let result: APIResponse;
 
 		if (!parsed.success) {
-			result = UserError(parsed.error.issues[0].message);
+			result = UserError(z.prettifyError(parsed.error));
 		} else {
 			try {
 				result = await callback(parsed.data);

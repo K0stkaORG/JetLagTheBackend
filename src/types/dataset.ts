@@ -5,15 +5,12 @@ export type Dataset = {
 	id: number;
 	name: string;
 	description: string;
-	ownerId: number; // Stretch goal
-	data: {
-		gameAreaPolygon: Polygon;
-		// Idk what else to put here
-		questions: Question[];
-		cards: {
-			card: Card;
-			amount: number;
-		}[];
-	};
+	ownerId: number;
+	gameAreaPolygon: Polygon;
+	questions: Question[];
+	cards: {
+		card: Card;
+		amount: number;
+	}[];
 	deprecated: boolean;
 };
