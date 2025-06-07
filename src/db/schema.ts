@@ -7,3 +7,4 @@ export * from "./models/game";
 export * from "./models/position";
 export * from "./models/question";
 export * from "./models/user";
+export * from "./models/remainingCards";

@@ -7,9 +7,9 @@ export type Dataset = {
 	description: string;
 	ownerId: number;
 	gameAreaPolygon: Polygon;
-	questions: Question[];
+	questions: Question["id"][];
 	cards: {
-		card: Card;
+		cardId: Card["id"];
 		amount: number;
 	}[];
 	deprecated: boolean;

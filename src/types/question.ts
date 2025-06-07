@@ -2,7 +2,8 @@
 
 export type Question = {
 	id: number;
-	text: string;
+	name: string;
+	description: string;
 	type: QuestionType;
 	price_draw: number;
 	price_keep: number;

@@ -12,4 +12,6 @@ export const Polygon = (name: string) =>
 		toDriver(value: PolygonType): string {
 			return JSON.stringify(value);
 		},
-	})(name);
+	})(name)
+		.notNull()
+		.$type<PolygonType>();

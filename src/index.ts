@@ -1,35 +1,23 @@
-import { handleLoginAttempt, handleRegistrationAttempt } from "./handlers/auth";
-
-import { Server } from "socket.io";
-import { UserError } from "./handlers/handler";
+import { Orchestrator } from "./lib/orchestrator";
+import { authHandler } from "./routes/auth";
 import cors from "cors";
 import { env } from "./env";
-import express, { type ErrorRequestHandler } from "express";
+import express from "express";
+import { io } from "./lib/io";
+import { syntaxErrorHandler } from "./lib/syntaxErrorHandler";
 import { z } from "zod/v4";
 
 z.config(z.locales.cs());
 
+const ORCHESTRATOR = new Orchestrator();
+
 const REST_API = express();
+
 REST_API.use(express.json());
 REST_API.use(cors());
 
-REST_API.use(((err, req, res, next) => {
-	if (err instanceof SyntaxError && (err as any).status === 400 && "body" in err) return res.status(400).json(UserError(err.message));
+REST_API.use(syntaxErrorHandler);
 
-	next();
-}) as ErrorRequestHandler);
+REST_API.use("/auth", authHandler);
 
-const WS_SERVER = new Server({
-	cors: {
-		origin: "*",
-	},
-});
-
-WS_SERVER.on("connection", async (socket) => {
-	socket.on("disconnect", () => {});
-});
-
-REST_API.post("/auth/register", handleRegistrationAttempt);
-REST_API.post("/auth/login", handleLoginAttempt);
-
-Promise.all([REST_API.listen(env.SERVER_PORT), WS_SERVER.listen(env.WS_PORT)]);
+Promise.all([REST_API.listen(env.SERVER_PORT), ORCHESTRATOR.listen(env.WS_PORT)]).then(() => io.serverReady());

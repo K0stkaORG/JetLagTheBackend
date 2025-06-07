@@ -1,5 +1,6 @@
 import { RequestHandler, Response } from "express";
 
+import { io } from "./io";
 import { z } from "zod/v4";
 
 type SuccessResponse = {
@@ -24,38 +25,49 @@ type CustomResponseGenerator = {
 
 export type APIResponse = SuccessResponse | UserErrorResponse | ServerErrorResponse | CustomResponseGenerator;
 
+export const API_RESPONSE_CODE = {
+	success: 200,
+	userError: 400,
+	serverError: 500,
+} as const;
+
 export const handler =
-	<T extends z.Schema>(requestSchema: T, callback: (data: z.infer<T>) => Promise<APIResponse> | APIResponse): RequestHandler =>
+	<T extends z.Schema>(
+		callback: T extends undefined ? (body: Request["body"], locals: Response["locals"]) => Promise<APIResponse> | APIResponse : (data: z.infer<T>, locals: Response["locals"]) => Promise<APIResponse> | APIResponse,
+		requestSchema?: T
+	): RequestHandler =>
 	async (req, res) => {
-		const parsed = requestSchema.safeParse(req.body);
+		let response: APIResponse;
 
-		let result: APIResponse;
+		const parsed = requestSchema?.safeParse(req.body) ?? { success: true, data: req.body };
 
-		if (!parsed.success) {
-			result = UserError(z.prettifyError(parsed.error));
-		} else {
+		if (parsed.success) {
 			try {
-				result = await callback(parsed.data);
+				response = await callback(parsed.data, res.locals);
 			} catch (error) {
-				result = ServerError("An unexpected error occurred: \n" + (error instanceof Error ? error.message : String(error)));
+				response = ServerError("An unexpected error occurred: \n" + (error instanceof Error ? error.message : String(error)));
 			}
+		} else {
+			response = UserError(parsed.error.issues[0].message);
+
+			io.warn("Invalid request body structure:", "", z.prettifyError(parsed.error), "", req.body);
 		}
 
-		switch (result.result) {
+		switch (response.result) {
 			case "success":
-				res.status(200).json(result);
+				res.status(API_RESPONSE_CODE.success).json(response);
 				break;
 			case "user-error":
-				res.status(400).json(result);
+				res.status(API_RESPONSE_CODE.userError).json(response);
 				break;
 			case "server-error":
-				res.status(500).json(result);
+				res.status(API_RESPONSE_CODE.serverError).json(response);
 				break;
 			case "custom":
-				result.generator(res);
+				response.generator(res);
 				break;
 			default:
-				res.status(500).json(ServerError(`Unknown response type ${(result as any).result}`));
+				res.status(API_RESPONSE_CODE.serverError).json(ServerError(`Unknown response type ${(response as any).result}`));
 				break;
 		}
 	};

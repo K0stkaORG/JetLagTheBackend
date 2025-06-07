@@ -6,3 +6,4 @@ export * from "./game";
 export * from "./dataset";
 export * from "./account";
 export * from "./effect";
+export * from "./utility";

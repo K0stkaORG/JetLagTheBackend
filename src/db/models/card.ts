@@ -1,7 +1,7 @@
+import { CardsInHand, RemainingCards } from "../schema";
 import { integer, jsonb, pgEnum, pgTable, varchar } from "drizzle-orm/pg-core";
 
 import { Card } from "~/types";
-import { CardsInHand } from "../schema";
 import { relations } from "drizzle-orm";
 
 export const CardType = pgEnum("card_type", ["absolute_time_bonus", "relative_time_bonus", "curse", "veto", "mimic", "reroll", "randomize_answer"]);
@@ -16,4 +16,5 @@ export const Cards = pgTable("cards", {
 
 export const CardsRelations = relations(Cards, ({ many }) => ({
 	cardsInHand: many(CardsInHand),
+	remainingInGame: many(RemainingCards),
 }));

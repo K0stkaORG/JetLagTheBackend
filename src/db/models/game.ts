@@ -1,4 +1,4 @@
-import { ActiveEffects, CardsInHand, Datasets, Positions, Users } from "../schema";
+import { ActiveEffects, CardsInHand, Datasets, Positions, RemainingCards, Users } from "../schema";
 import { integer, jsonb, pgEnum, pgTable, point, timestamp } from "drizzle-orm/pg-core";
 
 import { User } from "~/types";
@@ -34,4 +34,5 @@ export const GameRelations = relations(Games, ({ one, many }) => ({
 	activeEffects: many(ActiveEffects),
 	cardsInHand: many(CardsInHand),
 	positions: many(Positions),
+	remainingCards: many(RemainingCards),
 }));
