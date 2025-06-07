@@ -29,7 +29,7 @@ ${styleText(
 
        ${styleText(["bold"], "JetLag: The App Server is running on ports:")}
                   🔄️ WebSocket: ${process.env.WS_PORT}
-                   🛏️  REST API: ${process.env.SERVER_PORT}
+                   🛏️ REST API: ${process.env.SERVER_PORT}
 
 `);
 };
