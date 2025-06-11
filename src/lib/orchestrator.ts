@@ -4,6 +4,7 @@ import { and, eq, lte, notInArray } from "drizzle-orm";
 import { GameServer } from "./gameServer";
 import { IdMap } from "~/types";
 import { Server } from "socket.io";
+import { io } from "./io";
 
 export class Orchestrator {
 	private readonly WS_SERVER: Server;
@@ -32,6 +33,9 @@ export class Orchestrator {
 
 		const gamesToBeLoaded = await db.query.Games.findMany({
 			where: and(eq(Games.state, "planned"), notInArray(Games.id, this.serverIds), lte(Games.startsAt, tenMinutesFromNow)),
+			columns: {
+				id: true,
+			},
 		});
 
 		await Promise.allSettled(
@@ -40,6 +44,8 @@ export class Orchestrator {
 
 				this.serverIds.push(server.id);
 				this.servers.set(server.id, server);
+
+				io.log(`Loaded game server for game ${game.id}`);
 			})
 		);
 	}

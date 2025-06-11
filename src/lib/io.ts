@@ -38,7 +38,7 @@ const withTimestamp = (message: string) => `${styleText(["gray", "dim"], `[${new
 
 const flatten = (arr: any[], noPadding?: true) =>
 	arr
-		.map((e) => (typeof e === "object" ? JSON.stringify(e, null, 2) : e.toString().split("\n")))
+		.map((e) => (typeof e === "object" ? JSON.stringify(e, null, 2).split("\n") : e.toString().split("\n")))
 		.flat(1)
 		.join(noPadding ? "\x1b[0m\n   \x1b[91;1;4m" : "\n" + new String(" ").repeat(new Date().toLocaleString().length + 3));
 

@@ -1,1 +1,1 @@
-export type Effect = "bonus_cards" | "gamblers_feet"; // Todo: Add remaining effects
+export type EffectType = "bonus_cards" | "gamblers_feet"; // Todo: Add remaining effects

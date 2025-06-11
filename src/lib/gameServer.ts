@@ -2,6 +2,7 @@ import { Card, Dataset, IdMap, Question } from "~/types";
 import { Cards, Datasets, Questions, db } from "~/db";
 import { eq, inArray } from "drizzle-orm";
 
+import { DynamicDataStore } from "./dynamicDataStore";
 import { MapById } from "./utility";
 
 export class GameServer {
@@ -26,15 +27,17 @@ export class GameServer {
 			),
 		});
 
-		return new GameServer(game.id, game.dataset, MapById(questions), MapById(cards));
+		const dynamicData = await DynamicDataStore.get(id);
+
+		return new GameServer(game.id, game.dataset, MapById(questions), MapById(cards), dynamicData);
 	}
 
-	private constructor(public readonly id: number, public readonly dataset: Dataset, public readonly questions: IdMap<Question>, public readonly cards: IdMap<Card>) {}
+	private constructor(public readonly id: number, private readonly dataset: Dataset, private readonly questions: IdMap<Question>, private readonly cards: IdMap<Card>, private readonly dynamicData: DynamicDataStore) {}
 
-	public get hidersRoomId() {
+	private get hidersRoomId() {
 		return `hiders-${this.id}`;
 	}
-	public get seekersRoomId() {
+	private get seekersRoomId() {
 		return `seekers-${this.id}`;
 	}
 }

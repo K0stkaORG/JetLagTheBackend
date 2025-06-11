@@ -46,6 +46,8 @@ export const handler =
 				response = await callback(parsed.data, res.locals);
 			} catch (error) {
 				response = ServerError("An unexpected error occurred: \n" + (error instanceof Error ? error.message : String(error)));
+
+				io.error("An unexpected error occurred while processing the request", "", `Request URL: ${req.url}`, `Request Body: ${JSON.stringify(req.body)}`, "", error);
 			}
 		} else {
 			response = UserError(parsed.error.issues[0].message);

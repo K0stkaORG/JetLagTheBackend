@@ -14,7 +14,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"packageManager": "pnpm@10.11.1",
+	"packageManager": "pnpm@10.12.1",
 	"dependencies": {
 		"@types/eslint": "^9.6.1",
 		"@types/express": "^5.0.2",

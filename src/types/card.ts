@@ -1,4 +1,4 @@
-import { Effect } from ".";
+import { EffectType } from ".";
 
 type CardBase = {
 	id: number;
@@ -27,7 +27,7 @@ export type RelativeTimeBonusCard = CardBase & {
 export type CurseCard = CardBase & {
 	type: "curse";
 	data: {
-		effect: Effect;
+		effect: EffectType;
 	};
 };
 
@@ -57,6 +57,6 @@ export type RandomizeAnswerCard = CardBase & {
 export type EffectCard = CardBase & {
 	type: "effect";
 	data: {
-		effect: Effect;
+		effect: EffectType;
 	};
 };
