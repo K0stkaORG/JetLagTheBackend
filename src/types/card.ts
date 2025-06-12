@@ -1,14 +1,30 @@
-import { EffectType } from ".";
+import { EffectType, Game } from ".";
 
 type CardBase = {
 	id: number;
 	name: string;
 	description: string;
-	type: "absolute_time_bonus" | "relative_time_bonus" | "curse" | "veto" | "mimic" | "reroll" | "randomize_answer" | "effect";
+	type:
+		| "absolute_time_bonus"
+		| "relative_time_bonus"
+		| "curse"
+		| "veto"
+		| "mimic"
+		| "reroll"
+		| "randomize_answer"
+		| "effect";
 	data: any;
 };
 
-export type Card = TimeBonusCard | RelativeTimeBonusCard | CurseCard | VetoCard | MimicCard | RerollCard | RandomizeAnswerCard | EffectCard;
+export type Card =
+	| TimeBonusCard
+	| RelativeTimeBonusCard
+	| CurseCard
+	| VetoCard
+	| MimicCard
+	| RerollCard
+	| RandomizeAnswerCard
+	| EffectCard;
 
 export type TimeBonusCard = CardBase & {
 	type: "absolute_time_bonus";
@@ -59,4 +75,17 @@ export type EffectCard = CardBase & {
 	data: {
 		effect: EffectType;
 	};
+};
+
+export type RemainingCard = {
+	id: number;
+	gameId: Game["id"];
+	cardId: Card["id"];
+	remaining: number;
+};
+
+export type CardInHand = {
+	id: number;
+	gameId: Game["id"];
+	cardId: Card["id"];
 };

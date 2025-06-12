@@ -32,7 +32,11 @@ export class Orchestrator {
 		const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
 
 		const gamesToBeLoaded = await db.query.Games.findMany({
-			where: and(eq(Games.state, "planned"), notInArray(Games.id, this.serverIds), lte(Games.startsAt, tenMinutesFromNow)),
+			where: and(
+				eq(Games.state, "planned"),
+				notInArray(Games.id, this.serverIds),
+				lte(Games.startsAt, tenMinutesFromNow)
+			),
 			columns: {
 				id: true,
 			},
@@ -40,10 +44,13 @@ export class Orchestrator {
 
 		await Promise.allSettled(
 			gamesToBeLoaded.map(async (game) => {
-				const server = await GameServer.load(game.id);
+				const gameServer = await GameServer.load({
+					id: game.id,
+					USE_WS_SERVER: this.WS_SERVER,
+				});
 
-				this.serverIds.push(server.id);
-				this.servers.set(server.id, server);
+				this.serverIds.push(gameServer.id);
+				this.servers.set(gameServer.id, gameServer);
 
 				io.log(`Loaded game server for game ${game.id}`);
 			})

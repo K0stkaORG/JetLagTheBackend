@@ -1,10 +1,16 @@
-import { Card, Coordinates, Game, GameEvent, Question, User } from ".";
+import { ActiveEffect, Card, Coordinates, GameEvent, Question, User } from ".";
 
 type SyncFrameBase = {
-	id: number;
-	gameId: Game["id"];
-	timestamp: Date;
-	type: "position" | "game_event" | "question_asked" | "question_answered" | "card_played" | "cards_drawn" | "cards_picked";
+	type:
+		| "position"
+		| "game_event"
+		| "question_asked"
+		| "question_answered"
+		| "card_played"
+		| "cards_drawn"
+		| "cards_picked"
+		| "effect_started"
+		| "effect_ended";
 	data: any;
 };
 
@@ -61,4 +67,33 @@ export type CardsPickedSyncFrame = SyncFrameBase & {
 	};
 };
 
-export type SyncFrame = SeekersPositionSyncFrame | GameEventsSyncFrame | QuestionAskedSyncFrame | QuestionAnsweredSyncFrame | CardPlayedSyncFrame | CardsDrawnSyncFrame | CardsPickedSyncFrame;
+export type EffectStartedSyncFrame = SyncFrameBase & {
+	type: "effect_started";
+	data: Omit<ActiveEffect, "gameId">;
+};
+
+export type EffectEndedSyncFrame = SyncFrameBase & {
+	type: "effect_ended";
+	data: {
+		effectId: ActiveEffect["id"];
+	};
+};
+
+export type HidersSyncFrame =
+	| SeekersPositionSyncFrame
+	| GameEventsSyncFrame
+	| QuestionAskedSyncFrame
+	| QuestionAnsweredSyncFrame
+	| CardPlayedSyncFrame
+	| EffectStartedSyncFrame
+	| EffectEndedSyncFrame;
+
+export type SeekersSyncFrame =
+	| GameEventsSyncFrame
+	| QuestionAskedSyncFrame
+	| QuestionAnsweredSyncFrame
+	| CardPlayedSyncFrame
+	| CardsDrawnSyncFrame
+	| CardsPickedSyncFrame
+	| EffectStartedSyncFrame
+	| EffectEndedSyncFrame;
