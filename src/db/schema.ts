@@ -8,3 +8,4 @@ export * from "./models/position";
 export * from "./models/question";
 export * from "./models/user";
 export * from "./models/remainingCards";
+export * from "./models/events";

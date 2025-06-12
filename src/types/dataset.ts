@@ -7,6 +7,8 @@ export type Dataset = {
 	description: string;
 	ownerId: number;
 	gameAreaPolygon: Polygon;
+	hidingTime: number;
+	timeBonusMultiplier: number;
 	questions: Question["id"][];
 	cards: {
 		cardId: Card["id"];

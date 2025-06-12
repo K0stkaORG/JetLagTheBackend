@@ -12,16 +12,16 @@ export const authHandler = Router();
 authHandler.post(
 	"/register",
 	handler(
-		async (userData) => {
+		async ({ data: { nickname, password } }) => {
 			const existingUser = await db.query.Users.findFirst({
-				where: eq(Users.nickname, userData.nickname),
+				where: eq(Users.nickname, nickname),
 			});
 
 			if (existingUser) return UserError("Uživatel s touto přezdívkou již existuje");
 
 			const newUser = {
-				nickname: userData.nickname,
-				passwordHash: await bcrypt.hash(userData.password, 10),
+				nickname,
+				passwordHash: await bcrypt.hash(password, 10),
 				avatarUrl: null,
 			};
 
@@ -38,7 +38,10 @@ authHandler.post(
 			password: z
 				.string()
 				.min(8, "Heslo musí mít alespoň 8 znaků")
-				.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, "Heslo musí obsahovat alespoň jedno velké písmeno, jedno malé písmeno a jedno číslo"),
+				.regex(
+					/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+					"Heslo musí obsahovat alespoň jedno velké písmeno, jedno malé písmeno a jedno číslo"
+				),
 		})
 	)
 );
@@ -46,12 +49,13 @@ authHandler.post(
 authHandler.post(
 	"/login",
 	handler(
-		async ({ nickname, password }) => {
+		async ({ data: { nickname, password } }) => {
 			const user = await db.query.Users.findFirst({
 				where: eq(Users.nickname, nickname),
 			});
 
-			if (!user || !(await bcrypt.compare(password, user.passwordHash))) return UserError("Neplatná přezdívka nebo heslo");
+			if (!user || !(await bcrypt.compare(password, user.passwordHash)))
+				return UserError("Neplatná přezdívka nebo heslo");
 
 			return Success({
 				id: user.id,
@@ -70,7 +74,7 @@ authHandler.post(
 authHandler.post(
 	"/refresh",
 	[protectedRoute],
-	handler(async (_body, locals) => {
+	handler(async ({ locals }) => {
 		const user = await db.query.Users.findFirst({
 			where: eq(Users.id, locals.userId),
 		});

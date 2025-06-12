@@ -10,8 +10,9 @@ type SyncFrameBase = {
 		| "cards_drawn"
 		| "cards_picked"
 		| "effect_started"
-		| "effect_ended";
-	data: any;
+		| "effect_ended"
+		| GameEvent["type"];
+	data?: any;
 };
 
 export type SeekersPositionSyncFrame = SyncFrameBase & {
@@ -23,10 +24,7 @@ export type SeekersPositionSyncFrame = SyncFrameBase & {
 };
 
 export type GameEventsSyncFrame = SyncFrameBase & {
-	type: "game_event";
-	data: {
-		eventId: GameEvent["id"];
-	};
+	type: GameEvent["type"];
 };
 
 export type QuestionAskedSyncFrame = SyncFrameBase & {

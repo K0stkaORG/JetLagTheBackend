@@ -13,7 +13,7 @@ export const Positions = pgTable("positions", {
 		.notNull(),
 	team: Team("team").notNull(),
 	position: point("position", { mode: "tuple" }).notNull(),
-	timestamp: timestamp("timestamp", { mode: "date" }).notNull().defaultNow(),
+	timestamp: timestamp("timestamp", { mode: "date", precision: 0 }).notNull().defaultNow(),
 });
 
 export const PositionRelations = relations(Positions, ({ one }) => ({

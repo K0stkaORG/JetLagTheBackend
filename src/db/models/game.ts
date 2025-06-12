@@ -1,4 +1,4 @@
-import { ActiveEffects, CardsInHand, Datasets, Positions, RemainingCards, Users } from "../schema";
+import { ActiveEffects, CardsInHand, Datasets, Events, Positions, RemainingCards, Users } from "../schema";
 import { integer, jsonb, pgEnum, pgTable, point, timestamp } from "drizzle-orm/pg-core";
 
 import { User } from "~/types";
@@ -17,7 +17,7 @@ export const Games = pgTable("games", {
 		.notNull(),
 	seekers: jsonb("seekers").notNull().default([]).$type<User["id"][]>(),
 	state: GameState("state").notNull().default("planned"),
-	startsAt: timestamp("starts_at", { mode: "date" }).notNull(),
+	startsAt: timestamp("starts_at", { mode: "date", precision: 0 }).notNull(),
 	duration: integer("duration"),
 	hidingSpot: point("hiding_spot", { mode: "tuple" }),
 });
@@ -35,4 +35,5 @@ export const GameRelations = relations(Games, ({ one, many }) => ({
 	cardsInHand: many(CardsInHand),
 	positions: many(Positions),
 	remainingCards: many(RemainingCards),
+	events: many(Events),
 }));

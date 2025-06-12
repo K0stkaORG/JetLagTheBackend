@@ -1,4 +1,4 @@
-import { Card, Coordinates, Dataset, User } from ".";
+import { Coordinates, Dataset, User } from ".";
 
 export type Game = {
 	id: number;
@@ -6,16 +6,15 @@ export type Game = {
 	hiders: User["id"][];
 	hidersTeamLeader: User["id"];
 	seekers: User["id"][];
-	state: "planed" | "hiding_phase" | "main_phase" | "paused" | "finished";
+	state: "planned" | "hiding_phase" | "main_phase" | "paused" | "finished";
 	startsAt: Date;
 	duration: number | null;
 	hidingSpot: Coordinates | null;
-	hand: Card["id"][];
 };
 
 export type GameEvent = {
 	id: number;
 	gameId: Game["id"];
-	type: "hiding_started" | "main_phase_started" | "game_paused" | "game_resumed" | "game_finished";
+	type: "hiding_phase_started" | "main_phase_started" | "game_paused" | "game_resumed" | "game_finished";
 	timestamp: Date;
 };

@@ -1,10 +1,11 @@
-import { Card, Dataset, HidersSyncFrame, IdMap, Question, SeekersSyncFrame } from "~/types";
+import { Card, Dataset, HidersSyncFrame, IdMap, Question, SeekersSyncFrame, User } from "~/types";
 import { Cards, Datasets, Questions, db } from "~/db";
 import { eq, inArray } from "drizzle-orm";
 
 import { DynamicDataStore } from "./dynamicDataStore";
 import { MapById } from "./utility";
 import { Server } from "socket.io";
+import { io } from "./io";
 
 export class GameServer {
 	public static async load({
@@ -34,15 +35,34 @@ export class GameServer {
 			),
 		});
 
-		const dynamicData = await DynamicDataStore.load(id);
+		const dynamicData = await DynamicDataStore.load(game);
 
-		return new GameServer(WS_SERVER, game.id, game.dataset, MapById(questions), MapById(cards), dynamicData);
+		return new GameServer(
+			WS_SERVER,
+			game.id,
+			game.dataset,
+			{
+				hiders: game.hiders,
+				seekers: game.seekers,
+				hidersTeamLeader: game.hidersTeamLeader,
+			},
+			game.startsAt,
+			MapById(questions),
+			MapById(cards),
+			dynamicData
+		);
 	}
 
 	private constructor(
 		private readonly WS_SERVER: Server,
 		public readonly id: number,
 		private readonly dataset: Dataset,
+		private readonly players: {
+			hiders: User["id"][];
+			seekers: User["id"][];
+			hidersTeamLeader: User["id"];
+		},
+		private readonly startsAt: Date,
 		private readonly questions: IdMap<Question>,
 		private readonly cards: IdMap<Card>,
 		private readonly dynamicData: DynamicDataStore
@@ -50,14 +70,15 @@ export class GameServer {
 		this.dynamicData.setEventEmitters({
 			emitToHiders: this.emitToHiders.bind(this),
 			emitToSeekers: this.emitToSeekers.bind(this),
+			emitToAll: this.emitToAll.bind(this),
 		});
 	}
 
 	private get hidersRoomId() {
-		return `hiders-${this.id}`;
+		return `h-${this.id}`;
 	}
 	private get seekersRoomId() {
-		return `seekers-${this.id}`;
+		return `s-${this.id}`;
 	}
 
 	private emitToHiders(syncFrame: HidersSyncFrame) {
@@ -66,5 +87,53 @@ export class GameServer {
 
 	private emitToSeekers(syncFrame: SeekersSyncFrame) {
 		this.WS_SERVER.to(this.seekersRoomId).emit(syncFrame.type, syncFrame.data);
+	}
+
+	private emitToAll(syncFrame: Extract<HidersSyncFrame, SeekersSyncFrame>) {
+		this.WS_SERVER.to(this.hidersRoomId).emit(syncFrame.type, syncFrame.data);
+		this.WS_SERVER.to(this.seekersRoomId).emit(syncFrame.type, syncFrame.data);
+	}
+
+	public get shouldHidingPhaseBeStarted() {
+		return this.startsAt.getTime() <= Date.now() && this.dynamicData.state === "planned";
+	}
+
+	public async startHidingPhase() {
+		io.log(`Started hiding phase of game ${this.id}`);
+
+		await this.dynamicData.startHidingPhase();
+	}
+
+	public async pause() {
+		io.log(`Paused game ${this.id}`);
+
+		await this.dynamicData.pause();
+	}
+
+	public async resume() {
+		io.log(`Resumed game ${this.id}`);
+
+		await this.dynamicData.resume();
+	}
+
+	public get shouldMainPhaseBeStarted() {
+		return (
+			this.dynamicData.state === "hiding_phase" &&
+			this.dynamicData.getFullDuration() >= this.dataset.hidingTime * 60
+		);
+	}
+
+	public get debug() {
+		return {
+			id: this.id,
+			dataset: this.dataset,
+			players: this.players,
+			startsAt: this.startsAt.toLocaleString(),
+			questions: this.questions,
+			cards: this.cards,
+			dynamicData: this.dynamicData.debug,
+			hidersRoomId: this.hidersRoomId,
+			seekersRoomId: this.seekersRoomId,
+		};
 	}
 }

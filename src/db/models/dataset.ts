@@ -12,6 +12,8 @@ export const Datasets = pgTable("datasets", {
 		.notNull()
 		.references(() => Users.id),
 	gameAreaPolygon: Polygon("game_area_polygon"),
+	hidingTime: integer("hiding_time").notNull(),
+	timeBonusMultiplier: integer("time_bonus_multiplier").notNull().default(1),
 	questions: jsonb("questions").notNull().default([]).$type<Dataset["questions"]>(),
 	cards: jsonb("cards").notNull().default([]).$type<Dataset["cards"]>(),
 	deprecated: boolean("deprecated").notNull().default(false),
