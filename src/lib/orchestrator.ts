@@ -1,8 +1,8 @@
 import { Games, db } from "~/db";
-import { and, eq, lte, notInArray } from "drizzle-orm";
+import { and, lte, notInArray } from "drizzle-orm";
 
 import { CronJob } from "cron";
-import { GameServer } from "./gameServer";
+import { GameServer } from "./GameServer/gameServer";
 import { IdMap } from "~/types";
 import { Server } from "socket.io";
 import { io } from "./io";
@@ -67,8 +67,22 @@ export class Orchestrator {
 		);
 
 		this.servers.forEach((server) => {
-			if (server.shouldHidingPhaseBeStarted) server.startHidingPhase();
+			server.oneMinuteTick();
 		});
+	}
+
+	public async restart() {
+		io.log("Restarting orchestrator...");
+
+		this.eventLoop.stop();
+		this.serverIds.length = 0;
+		this.servers.clear();
+
+		this.WS_SERVER.disconnectSockets();
+
+		await this.oneMinuteTick();
+
+		this.eventLoop.start();
 	}
 
 	public get debug() {
