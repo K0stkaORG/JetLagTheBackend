@@ -1,14 +1,26 @@
+import { CronJob } from "cron";
 import { DataStore } from "./dataStore";
 import { PhaseManager } from "./phaseManager";
 import { Server } from "socket.io";
 import { SyncHandler } from "./syncHandler";
 
 export class GameServer {
+	private readonly eventLoop: CronJob<null, this>;
+
 	private constructor(
 		private readonly syncHandler: SyncHandler,
 		private readonly data: DataStore,
 		private readonly phaseManager: PhaseManager
-	) {}
+	) {
+		this.eventLoop = CronJob.from({
+			cronTime: "* * * * * *",
+			onTick: this.tick,
+			start: true,
+			timeZone: "Europe/Prague",
+			context: this,
+			waitForCompletion: true,
+		});
+	}
 
 	public static async load({
 		id,
@@ -49,7 +61,12 @@ export class GameServer {
 		await this.phaseManager.resume();
 	}
 
-	public async oneMinuteTick() {
-		await this.phaseManager.oneMinuteTick();
+	private async tick() {
+		await this.phaseManager.tick();
+	}
+
+	public unload() {
+		this.eventLoop.stop();
+		this.syncHandler.close();
 	}
 }

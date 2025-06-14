@@ -39,7 +39,7 @@ export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
 					name: "Default Dataset",
 					description: "Default dataset for development purposes.",
 					gameAreaPolygon: [],
-					hidingTime: 30,
+					hidingTime: 5,
 					timeBonusMultiplier: 1,
 					cards: [],
 					questions: [],
@@ -78,7 +78,7 @@ export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
 		"/games",
 		handler(() =>
 			Success({
-				loadedGameServerIds: ORCHESTRATOR.debug.serverIds,
+				loadedGameServerIds: ORCHESTRATOR.loadedServerIds,
 			})
 		)
 	);
@@ -86,8 +86,8 @@ export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
 	debugRouter.get(
 		"/game/:id",
 		handler(async ({ params }) => {
-			const gameId = Number(params.id);
-			const server = ORCHESTRATOR.debug.servers.get(gameId);
+			const gameId = params.id === "first" ? ORCHESTRATOR.loadedServerIds[0] : Number(params.id);
+			const server = ORCHESTRATOR.getServerById(gameId);
 
 			if (!server) return UserError(`Game server for game with ID ${gameId} not found.`);
 

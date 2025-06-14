@@ -13,7 +13,7 @@ export class Orchestrator {
 	private readonly serverIds: number[] = [];
 	private readonly servers: IdMap<GameServer> = new Map();
 
-	private readonly eventLoop: CronJob<null, this>;
+	private loadServersLoop: CronJob<null, this> | null = null;
 
 	public constructor() {
 		this.WS_SERVER = new Server({
@@ -25,24 +25,31 @@ export class Orchestrator {
 		this.WS_SERVER.on("connection", async (socket) => {
 			socket.on("disconnect", () => {});
 		});
+	}
 
-		this.eventLoop = CronJob.from({
-			cronTime: "0 * * * * *",
-			onTick: this.oneMinuteTick,
-			start: false,
-			timeZone: "Europe/Prague",
-			context: this,
-			runOnInit: true,
-		});
+	public get loadedServerIds(): number[] {
+		return this.serverIds;
+	}
+
+	public getServerById(id: number): GameServer | undefined {
+		return this.servers.get(id);
 	}
 
 	public async listen(port: number) {
 		await this.WS_SERVER.listen(port);
 
-		this.eventLoop.start();
+		this.loadServersLoop = CronJob.from({
+			cronTime: "0 * * * * *",
+			onTick: this.loadServers,
+			start: true,
+			timeZone: "Europe/Prague",
+			context: this,
+			waitForCompletion: true,
+			runOnInit: true,
+		});
 	}
 
-	public async oneMinuteTick() {
+	private async loadServers() {
 		const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
 
 		const gamesToBeLoaded = await db.query.Games.findMany({
@@ -65,30 +72,22 @@ export class Orchestrator {
 				io.log(`Loaded game server for game ${game.id}`);
 			})
 		);
-
-		this.servers.forEach((server) => {
-			server.oneMinuteTick();
-		});
 	}
 
 	public async restart() {
 		io.log("Restarting orchestrator...");
 
-		this.eventLoop.stop();
-		this.serverIds.length = 0;
+		this.loadServersLoop?.stop();
+
+		this.servers.values().forEach((server) => server.unload());
+
 		this.servers.clear();
+		this.serverIds.length = 0;
 
 		this.WS_SERVER.disconnectSockets();
 
-		await this.oneMinuteTick();
+		await this.loadServers();
 
-		this.eventLoop.start();
-	}
-
-	public get debug() {
-		return {
-			serverIds: this.serverIds,
-			servers: this.servers,
-		};
+		this.loadServersLoop?.start();
 	}
 }

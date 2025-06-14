@@ -13,7 +13,7 @@ export class PhaseManager {
 		return now - (now % 1000);
 	}
 
-	public async oneMinuteTick() {
+	public async tick() {
 		const shouldHidingPhaseBeStarted = this.data.startsAt.getTime() <= Date.now() && this.data.state === "planned";
 
 		if (shouldHidingPhaseBeStarted) {

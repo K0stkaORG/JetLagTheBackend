@@ -11,8 +11,8 @@ export const gameRouter = (ORCHESTRATOR: Orchestrator) => {
 	gameRouter.post(
 		"/:id/pause",
 		handler(async ({ params }) => {
-			const gameId = Number(params.id);
-			const server = ORCHESTRATOR.debug.servers.get(gameId);
+			const gameId = params.id === "first" ? ORCHESTRATOR.loadedServerIds[0] : Number(params.id);
+			const server = ORCHESTRATOR.getServerById(gameId);
 
 			if (!server) return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
 
@@ -31,8 +31,8 @@ export const gameRouter = (ORCHESTRATOR: Orchestrator) => {
 	gameRouter.post(
 		"/:id/resume",
 		handler(async ({ params }) => {
-			const gameId = Number(params.id);
-			const server = ORCHESTRATOR.debug.servers.get(gameId);
+			const gameId = params.id === "first" ? ORCHESTRATOR.loadedServerIds[0] : Number(params.id);
+			const server = ORCHESTRATOR.getServerById(gameId);
 
 			if (!server) return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
 

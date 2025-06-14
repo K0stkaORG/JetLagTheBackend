@@ -3,6 +3,9 @@ import { HidersSyncFrame, SeekersSyncFrame } from "~/types";
 import { Server } from "socket.io";
 
 export class SyncHandler {
+	private readonly UserIdLookup: Map<string, number> = new Map();
+	private readonly UserSocketLookup: Map<number, string> = new Map();
+
 	public constructor(private readonly gameId: number, private readonly WS_SERVER: Server) {}
 
 	private get hidersRoomId() {
@@ -22,6 +25,10 @@ export class SyncHandler {
 
 	public emitToAll(syncFrame: Extract<HidersSyncFrame, SeekersSyncFrame>) {
 		this.WS_SERVER.to([this.hidersRoomId, this.seekersRoomId]).emit(syncFrame.type, syncFrame.data);
+	}
+
+	public close() {
+		this.WS_SERVER.to([this.hidersRoomId, this.seekersRoomId]).disconnectSockets();
 	}
 
 	public get debug() {
