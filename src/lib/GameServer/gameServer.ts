@@ -58,7 +58,7 @@ export class GameServer {
 	}
 
 	public async resume() {
-		await this.phaseManager.resume();
+		return await this.phaseManager.resume();
 	}
 
 	private async tick() {
@@ -68,5 +68,25 @@ export class GameServer {
 	public unload() {
 		this.eventLoop.stop();
 		this.syncHandler.close();
+	}
+
+	public isJoinableByUser(userId: number): boolean {
+		return this.data.players.hiders.includes(userId) || this.data.players.seekers.includes(userId);
+	}
+
+	public get joinInfo() {
+		return {
+			id: this.id,
+			name: this.data.datasetName,
+			description: this.data.datasetDescription,
+			startsAt: this.data.startsAt.getTime(),
+			state: this.data.state,
+			duration: this.data.duration,
+			durationSync: Date.now(),
+		};
+	}
+
+	public getJoinInfoForUser(userId: number) {
+		return this.data.getJoinInfoForUser(userId);
 	}
 }

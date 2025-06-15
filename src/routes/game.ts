@@ -2,19 +2,40 @@ import { Success, UserError, handler } from "~/lib/apiRouteHandler";
 
 import { Orchestrator } from "~/lib/orchestrator";
 import { Router } from "express";
-
-//TODO: Add authentication and authorization middleware to protect these routes
+import { protectedRoute } from "~/lib/auth";
 
 export const gameRouter = (ORCHESTRATOR: Orchestrator) => {
 	const gameRouter = Router();
 
+	gameRouter.get(
+		"/joinable",
+		[protectedRoute],
+		handler(({ locals }) => Success(ORCHESTRATOR.getJoinableGamesForUser(locals.userId)))
+	);
+
 	gameRouter.post(
-		"/:id/pause",
-		handler(async ({ params }) => {
-			const gameId = params.id === "first" ? ORCHESTRATOR.loadedServerIds[0] : Number(params.id);
+		"/:id/join",
+		[protectedRoute],
+		handler(({ params, locals }) => {
+			const gameId = Number(params.id);
 			const server = ORCHESTRATOR.getServerById(gameId);
 
-			if (!server) return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
+			if (!server || !server.isJoinableByUser(locals.userId))
+				return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
+
+			return Success(server.getJoinInfoForUser(locals.userId));
+		})
+	);
+
+	gameRouter.post(
+		"/:id/pause",
+		[protectedRoute],
+		handler(async ({ params, locals }) => {
+			const gameId = Number(params.id);
+			const server = ORCHESTRATOR.getServerById(gameId);
+
+			if (!server || !server.isJoinableByUser(locals.userId))
+				return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
 
 			try {
 				await server.pause();
@@ -24,27 +45,27 @@ export const gameRouter = (ORCHESTRATOR: Orchestrator) => {
 				);
 			}
 
-			return Success({ message: `Hra ${gameId} byla úspěšně pozastavena.` });
+			return Success({ state: "paused" });
 		})
 	);
 
 	gameRouter.post(
 		"/:id/resume",
-		handler(async ({ params }) => {
-			const gameId = params.id === "first" ? ORCHESTRATOR.loadedServerIds[0] : Number(params.id);
+		[protectedRoute],
+		handler(async ({ params, locals }) => {
+			const gameId = Number(params.id);
 			const server = ORCHESTRATOR.getServerById(gameId);
 
-			if (!server) return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
+			if (!server || !server.isJoinableByUser(locals.userId))
+				return UserError(`Server pro hru s ID ${gameId} nebyl nalezen.`);
 
 			try {
-				await server.resume();
+				return Success({ state: await server.resume() });
 			} catch (error) {
 				return UserError(
 					`Nepodařilo se obnovit hru: ${error instanceof Error ? error.message : "Neznámá chyba"}`
 				);
 			}
-
-			return Success({ message: `Hra ${gameId} byla úspěšně obnovena.` });
 		})
 	);
 

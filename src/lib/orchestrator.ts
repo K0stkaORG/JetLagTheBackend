@@ -90,4 +90,10 @@ export class Orchestrator {
 
 		this.loadServersLoop?.start();
 	}
+
+	public getJoinableGamesForUser(userId: number) {
+		return Array.from(this.servers.values())
+			.filter((server) => server.isJoinableByUser(userId))
+			.map((server) => server.joinInfo);
+	}
 }

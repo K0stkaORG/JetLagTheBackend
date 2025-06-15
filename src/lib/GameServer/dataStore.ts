@@ -40,6 +40,14 @@ export class DataStore {
 		return this.staticData.datasetId;
 	}
 
+	public get datasetName(): string {
+		return this.staticData.datasetName;
+	}
+
+	public get datasetDescription(): string {
+		return this.staticData.datasetDescription;
+	}
+
 	public get startsAt(): Date {
 		return this.staticData.startsAt;
 	}
@@ -58,6 +66,12 @@ export class DataStore {
 
 	public get players() {
 		return this.staticData.players;
+	}
+
+	private getTeamForUser(userId: number): "hiders" | "seekers" | null {
+		if (this.staticData.players.hiders.includes(userId)) return "hiders";
+		if (this.staticData.players.seekers.includes(userId)) return "seekers";
+		return null;
 	}
 
 	public get questions() {
@@ -102,5 +116,12 @@ export class DataStore {
 
 	public set lastStartedAt(date: number) {
 		this.dynamicData.lastStartedAt = date;
+	}
+
+	public getJoinInfoForUser(userId: number) {
+		return {
+			team: this.getTeamForUser(userId)!,
+			isHidersLeader: this.staticData.players.hidersTeamLeader === userId,
+		};
 	}
 }

@@ -23,7 +23,7 @@ REST_API.use(cors());
 REST_API.use(syntaxErrorHandler);
 
 REST_API.use("/auth", authHandler);
-REST_API.use("/game", gameRouter(ORCHESTRATOR));
+REST_API.use("/games", gameRouter(ORCHESTRATOR));
 REST_API.use("/debug", debugHandler(ORCHESTRATOR));
 
 Promise.all([REST_API.listen(env.SERVER_PORT), ORCHESTRATOR.listen(env.WS_PORT)]).then(() => io.serverReady());

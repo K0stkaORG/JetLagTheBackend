@@ -75,7 +75,9 @@ export class PhaseManager {
 
 		io.log(`Resumed game ${this.data.id}`);
 
-		await this.data.setState(this.data.fullDuration >= this.data.hidingTime * 60 ? "main_phase" : "hiding_phase");
+		const resumedState = this.data.fullDuration >= this.data.hidingTime * 60 ? "main_phase" : "hiding_phase";
+
+		await this.data.setState(resumedState);
 
 		this.data.lastStartedAt = this.secondsAlignedNow;
 
@@ -86,5 +88,7 @@ export class PhaseManager {
 				timestamp: new Date(this.data.lastStartedAt),
 			},
 		]);
+
+		return resumedState;
 	}
 }

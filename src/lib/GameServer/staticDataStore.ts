@@ -8,6 +8,8 @@ export class StaticDataStore {
 	private constructor(
 		public readonly gameId: number,
 		public readonly datasetId: Dataset["id"],
+		public readonly datasetName: Dataset["name"],
+		public readonly datasetDescription: Dataset["description"],
 		public readonly startsAt: Date,
 		public readonly hidingTime: number,
 		public readonly timeBonusMultiplier: number,
@@ -36,6 +38,8 @@ export class StaticDataStore {
 		return new StaticDataStore(
 			game.id,
 			game.dataset.id,
+			game.dataset.name,
+			game.dataset.description,
 			game.startsAt,
 			game.dataset.hidingTime,
 			game.dataset.timeBonusMultiplier,

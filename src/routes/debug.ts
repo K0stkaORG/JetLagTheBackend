@@ -39,7 +39,7 @@ export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
 					name: "Default Dataset",
 					description: "Default dataset for development purposes.",
 					gameAreaPolygon: [],
-					hidingTime: 5,
+					hidingTime: 1,
 					timeBonusMultiplier: 1,
 					cards: [],
 					questions: [],
@@ -53,7 +53,7 @@ export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
 					{
 						datasetId,
 						hidersTeamLeader: devAccountId,
-						startsAt: new Date(Math.floor(Date.now() / 60000) * 60000 + 1000 * 60 * 5), // 5 minutes from now aligned to start on whole minute
+						startsAt: new Date(Math.floor(Date.now() / 60000) * 60000 + 1000 * 60 * 1), // 1 minute from now aligned to start on whole minute
 						hiders: [devAccountId],
 					},
 				])
