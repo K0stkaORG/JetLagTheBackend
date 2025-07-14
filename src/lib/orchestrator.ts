@@ -6,6 +6,7 @@ import { GameServer } from "./GameServer/gameServer";
 import { IdMap } from "~/types";
 import { Server } from "socket.io";
 import { io } from "./io";
+import { joinPacketHandler } from "./socketHandlers";
 
 export class Orchestrator {
 	private readonly WS_SERVER: Server;
@@ -20,10 +21,25 @@ export class Orchestrator {
 			cors: {
 				origin: "*",
 			},
+			path: "/",
 		});
 
 		this.WS_SERVER.on("connection", async (socket) => {
-			socket.on("disconnect", () => {});
+			io.logWithId(socket.id, "Connected to orchestrator");
+
+			const timeout = setTimeout(() => {
+				io.warnWithId(socket.id, "Failed to join a game within 10 seconds. Disconnecting...");
+
+				socket.emit("kick");
+
+				socket.disconnect(true);
+			}, 10_000);
+
+			socket.on("join", joinPacketHandler(this, socket, timeout));
+
+			socket.on("disconnect", (reason) => {
+				io.logWithId(socket.id, `Disconnected. Reason: ${reason}`);
+			});
 		});
 	}
 
@@ -94,6 +110,6 @@ export class Orchestrator {
 	public getJoinableGamesForUser(userId: number) {
 		return Array.from(this.servers.values())
 			.filter((server) => server.isJoinableByUser(userId))
-			.map((server) => server.joinInfo);
+			.map((server) => server.getJoinInfo());
 	}
 }

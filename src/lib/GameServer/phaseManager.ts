@@ -23,7 +23,7 @@ export class PhaseManager {
 		}
 
 		const shouldMainPhaseBeStarted =
-			this.data.state === "hiding_phase" && this.data.fullDuration >= this.data.hidingTime * 60;
+			this.data.state === "hiding_phase" && this.data.fullDuration >= this.data.dataset.hidingTime * 60;
 
 		if (shouldMainPhaseBeStarted) {
 			io.log(`Started main phase of game ${this.data.id}`);
@@ -75,7 +75,8 @@ export class PhaseManager {
 
 		io.log(`Resumed game ${this.data.id}`);
 
-		const resumedState = this.data.fullDuration >= this.data.hidingTime * 60 ? "main_phase" : "hiding_phase";
+		const resumedState =
+			this.data.fullDuration >= this.data.dataset.hidingTime * 60 ? "main_phase" : "hiding_phase";
 
 		await this.data.setState(resumedState);
 

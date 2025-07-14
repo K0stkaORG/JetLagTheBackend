@@ -1,10 +1,12 @@
-import { HidersSyncFrame, SeekersSyncFrame } from "~/types";
+import { HidersSyncFrame, SeekersSyncFrame, Team } from "~/types";
+import { Server, Socket } from "socket.io";
 
-import { Server } from "socket.io";
+import { DataStore } from "./dataStore";
+import { io } from "../io";
 
 export class SyncHandler {
-	private readonly UserIdLookup: Map<string, number> = new Map();
-	private readonly UserSocketLookup: Map<number, string> = new Map();
+	private readonly SocketToUserLookup: Map<string, number> = new Map();
+	private readonly UserToSocketLookup: Map<number, Socket> = new Map();
 
 	public constructor(private readonly gameId: number, private readonly WS_SERVER: Server) {}
 
@@ -31,10 +33,55 @@ export class SyncHandler {
 		this.WS_SERVER.to([this.hidersRoomId, this.seekersRoomId]).disconnectSockets();
 	}
 
+	public join(socket: Socket, userId: number, data: DataStore) {
+		if (this.UserToSocketLookup.has(userId)) {
+			const existingSocket = this.UserToSocketLookup.get(userId)!;
+
+			io.warn(
+				`User ${userId} is already connected to game ${this.gameId}. Replacing socket ${existingSocket.id} with ${socket.id}`
+			);
+
+			existingSocket.emit("replaced");
+			existingSocket.disconnect(true);
+
+			this.SocketToUserLookup.delete(existingSocket.id);
+		}
+
+		this.UserToSocketLookup.set(userId, socket);
+
+		const team = data.getTeamForUser(userId)!;
+
+		switch (team) {
+			case "hiders":
+				socket.join(this.hidersRoomId);
+				break;
+			case "seekers":
+				socket.join(this.seekersRoomId);
+				break;
+			default:
+				throw new Error(`Unknown team: ${team}`);
+		}
+
+		io.logWithId(socket.id, `User ${userId} joined game ${this.gameId} as ${team}`);
+
+		socket.emit("joined", data.joinPacket);
+
+		socket.on("disconnect", () => {
+			io.logWithId(socket.id, `User ${userId} disconnected from game ${this.gameId}`);
+
+			this.SocketToUserLookup.delete(socket.id);
+			this.UserToSocketLookup.delete(userId);
+		});
+	}
+
 	public get debug() {
 		return {
 			hidersRoomId: this.hidersRoomId,
 			seekersRoomId: this.seekersRoomId,
+			connections: Array.from(this.SocketToUserLookup.entries()).map(([socketId, userId]) => ({
+				userId,
+				socketId,
+			})),
 		};
 	}
 }

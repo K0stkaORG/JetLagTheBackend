@@ -18,3 +18,5 @@ export type GameEvent = {
 	type: "hiding_phase_started" | "main_phase_started" | "game_paused" | "game_resumed" | "game_finished";
 	timestamp: Date;
 };
+
+export type Team = "hiders" | "seekers";

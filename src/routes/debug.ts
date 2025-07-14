@@ -4,6 +4,7 @@ import { Success, UserError, handler } from "~/lib/apiRouteHandler";
 import { Orchestrator } from "~/lib/orchestrator";
 import { Router } from "express";
 import bcrypt from "bcrypt";
+import { createDataset } from "~/lib/createDataset";
 import { eq } from "drizzle-orm";
 
 export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
@@ -32,20 +33,26 @@ export const debugHandler = (ORCHESTRATOR: Orchestrator) => {
 					.returning()
 					.then((res) => res[0].id))!;
 
-			const datasetId = await db
-				.insert(Datasets)
-				.values({
-					ownerId: devAccountId,
-					name: "Default Dataset",
-					description: "Default dataset for development purposes.",
-					gameAreaPolygon: [],
-					hidingTime: 1,
-					timeBonusMultiplier: 1,
-					cards: [],
-					questions: [],
-				})
-				.returning()
-				.then((res) => res[0].id);
+			const datasetId = await createDataset({
+				ownerId: devAccountId,
+				name: "Default Dataset",
+				description: "Default dataset for development purposes.",
+				gameAreaPolygon: [
+					[49.5939614, 17.2509367 + 0.003],
+					[49.5939614 + 0.001, 17.2509367 + 0.002],
+					[49.5939614 + 0.0015, 17.2509367],
+					[49.5939614 + 0.001, 17.2509367 - 0.002],
+					[49.5939614, 17.2509367 - 0.003],
+					[49.5939614 - 0.001, 17.2509367 - 0.002],
+					[49.5939614 - 0.0015, 17.2509367],
+					[49.5939614 - 0.001, 17.2509367 + 0.002],
+				],
+				hidingTime: 1,
+				timeBonusMultiplier: 1,
+				cards: [],
+				questions: [],
+				startingPosition: [49.5939614, 17.2509367],
+			});
 
 			const gameId = await db
 				.insert(Games)

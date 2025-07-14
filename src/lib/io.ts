@@ -47,8 +47,20 @@ const flatten = (arr: any[], noPadding?: true) =>
 
 const log = (...message: any[]) => console.log(withTimestamp(styleText(["gray"], flatten(message))));
 
+const logWithId = (id: string, ...message: any[]) =>
+	console.log(withTimestamp(styleText(["cyanBright"], `<${id}>`) + " " + styleText(["gray"], flatten(message))));
+
 const warn = (...message: any[]) =>
 	console.log(withTimestamp(styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))));
+
+const warnWithId = (id: string, ...message: any[]) =>
+	console.log(
+		withTimestamp(
+			styleText(["cyanBright", "bold"], `<${id}>`) +
+				" " +
+				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
+		)
+	);
 
 const error = (...message: any[]) => {
 	console.log(
@@ -62,6 +74,8 @@ const error = (...message: any[]) => {
 export const io = {
 	serverReady,
 	log,
+	logWithId,
 	warn,
+	warnWithId,
 	error,
 };

@@ -1,7 +1,8 @@
+import { Server, Socket } from "socket.io";
+
 import { CronJob } from "cron";
 import { DataStore } from "./dataStore";
 import { PhaseManager } from "./phaseManager";
-import { Server } from "socket.io";
 import { SyncHandler } from "./syncHandler";
 
 export class GameServer {
@@ -70,23 +71,11 @@ export class GameServer {
 		this.syncHandler.close();
 	}
 
-	public isJoinableByUser(userId: number): boolean {
-		return this.data.players.hiders.includes(userId) || this.data.players.seekers.includes(userId);
-	}
+	public isJoinableByUser = (userId: number): boolean =>
+		this.data.players.hiders.includes(userId) || this.data.players.seekers.includes(userId);
 
-	public get joinInfo() {
-		return {
-			id: this.id,
-			name: this.data.datasetName,
-			description: this.data.datasetDescription,
-			startsAt: this.data.startsAt.getTime(),
-			state: this.data.state,
-			duration: this.data.duration,
-			durationSync: Date.now(),
-		};
-	}
+	public getJoinInfo = () => this.data.getJoinInfo();
+	public getJoinInfoForUser = (userId: number) => this.data.getJoinInfoForUser(userId);
 
-	public getJoinInfoForUser(userId: number) {
-		return this.data.getJoinInfoForUser(userId);
-	}
+	public join = (socket: Socket, userId: number) => this.syncHandler.join(socket, userId, this.data);
 }

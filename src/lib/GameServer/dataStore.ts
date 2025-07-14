@@ -1,5 +1,5 @@
 import { Datasets, db } from "~/db";
-import { Game, Polygon } from "~/types";
+import { Game, Team } from "~/types";
 
 import { DynamicDataStore } from "./dynamicDataStore";
 import { StaticDataStore } from "./staticDataStore";
@@ -36,39 +36,40 @@ export class DataStore {
 		return this.staticData.gameId;
 	}
 
-	public get datasetId(): number {
-		return this.staticData.datasetId;
-	}
+	public get dataset() {
+		return {
+			id: this.staticData.datasetId,
+			name: this.staticData.datasetName,
+			description: this.staticData.datasetDescription,
+			map: {
+				gameAreaPolygon: this.staticData.gameAreaPolygon,
+				startingPosition: this.staticData.startingPosition,
 
-	public get datasetName(): string {
-		return this.staticData.datasetName;
-	}
+				centreBoundingBox: {
+					ne: this.staticData.centreBoundingBoxNE,
+					sw: this.staticData.centreBoundingBoxSW,
+				},
 
-	public get datasetDescription(): string {
-		return this.staticData.datasetDescription;
+				zoom: {
+					min: this.staticData.minZoom,
+					max: this.staticData.maxZoom,
+					initial: this.staticData.startingZoom,
+				},
+			},
+			hidingTime: this.staticData.hidingTime,
+			timeBonusMultiplier: this.staticData.timeBonusMultiplier,
+		};
 	}
 
 	public get startsAt(): Date {
 		return this.staticData.startsAt;
 	}
 
-	public get hidingTime(): number {
-		return this.staticData.hidingTime;
-	}
-
-	public get timeBonusMultiplier(): number {
-		return this.staticData.timeBonusMultiplier;
-	}
-
-	public get gameAreaPolygon(): Polygon {
-		return this.staticData.gameAreaPolygon;
-	}
-
 	public get players() {
 		return this.staticData.players;
 	}
 
-	private getTeamForUser(userId: number): "hiders" | "seekers" | null {
+	public getTeamForUser(userId: number): Team | null {
 		if (this.staticData.players.hiders.includes(userId)) return "hiders";
 		if (this.staticData.players.seekers.includes(userId)) return "seekers";
 		return null;
@@ -118,10 +119,29 @@ export class DataStore {
 		this.dynamicData.lastStartedAt = date;
 	}
 
-	public getJoinInfoForUser(userId: number) {
-		return {
-			team: this.getTeamForUser(userId)!,
-			isHidersLeader: this.staticData.players.hidersTeamLeader === userId,
-		};
+	public getJoinInfo = () => ({
+		id: this.id,
+		name: this.dataset.name,
+		description: this.dataset.description,
+		startsAt: this.startsAt.getTime(),
+		state: this.state,
+		duration: this.duration,
+		durationSync: Date.now(),
+	});
+
+	public getJoinInfoForUser = (userId: number) => ({
+		team: this.getTeamForUser(userId)!,
+		isHidersLeader: this.staticData.players.hidersTeamLeader === userId,
+
+		timeBonusMultiplier: this.dataset.timeBonusMultiplier,
+
+		map: this.dataset.map,
+
+		questions: this.staticData.questionIds,
+		cards: this.staticData.cardIds,
+	});
+
+	public get joinPacket() {
+		return {};
 	}
 }
