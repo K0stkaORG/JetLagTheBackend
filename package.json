@@ -5,9 +5,8 @@
 	"main": "./dist/index.ts",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"lint": "npx eslint ./src/**",
-		"lint:fix": "npx eslint ./src/** --fix",
-		"start": "tsx src/index.ts",
+		"build": "node clearBuildArtifacts.js && tsc",
+		"start": "node dist/src/index.js",
 		"migrate": "npx drizzle-kit push",
 		"tinker": "npx drizzle-kit studio"
 	},

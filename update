@@ -128,8 +128,14 @@ log_info "Executing database migrations..."
 pnpm migrate
 check_status "Database migrations completed successfully" "Failed to run database migrations"
 
-# Step 6: Restart the PM2 process
-log_step "6" "Restarting Application"
+# Step 6: Build the application
+log_step "6" "Building Application"
+log_info "Building application with pnpm...\n"
+pnpm build
+check_status "Application built successfully" "Failed to build application"
+
+# Step 7: Restart the PM2 process
+log_step "7" "Restarting Application"
 log_info "Starting PM2 process with ID: $pm2id\n"
 pm2 start $pm2id
 check_status "PM2 process started successfully" "Failed to start PM2 process"
