@@ -5,7 +5,7 @@
 	"main": "./dist/index.ts",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"build": "node clearBuildArtifacts.js && tsc",
+		"build": "node clearBuildArtifacts.js && tsc && tsc-alias --dir ./dist/src",
 		"start": "node dist/src/index.js",
 		"migrate": "npx drizzle-kit push",
 		"tinker": "npx drizzle-kit studio"
@@ -13,7 +13,7 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
-	"packageManager": "pnpm@10.12.1",
+	"packageManager": "pnpm@10.13.1",
 	"dependencies": {
 		"@types/eslint": "^9.6.1",
 		"@types/express": "^5.0.2",
@@ -36,6 +36,7 @@
 		"@types/cors": "^2.8.18",
 		"@types/pg": "^8.15.4",
 		"drizzle-kit": "^0.31.1",
+		"tsc-alias": "^1.8.16",
 		"tsx": "^4.19.4"
 	}
 }
