@@ -25,7 +25,7 @@ export class Orchestrator {
 		});
 
 		this.WS_SERVER.on("connection", async (socket) => {
-			io.orchestrator.logWithSocket(socket.id, "Connected to orchestrator");
+			io.orchestrator.logWithSocket(socket.id, "Connected");
 
 			const timeout = setTimeout(() => {
 				io.orchestrator.warnWithSocket(socket.id, "Failed to join a game within 10 seconds. Disconnecting...");
