@@ -72,7 +72,7 @@ export class SyncHandler {
 				type: "HideAndSeek",
 			},
 			socket.id,
-			`User ${userId} joined as ${team}`
+			`User ${userId} joined team ${team}`
 		);
 
 		socket.emit("joined", data.joinPacket);

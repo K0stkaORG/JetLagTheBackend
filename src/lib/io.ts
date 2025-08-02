@@ -72,6 +72,7 @@ const serverLogWithSocket = (
 			styleText(["cyanBright"], `<${server.id}:${server.type}>`) +
 				" " +
 				styleText(["greenBright"], `{${socket}}`) +
+				" " +
 				message
 		)
 	);
@@ -82,7 +83,11 @@ const orchestratorLog = (...message: any[]) =>
 const orchestratorLogWithSocket = (socket: string, ...message: any[]) =>
 	console.log(
 		withTimestamp(
-			styleText(["magentaBright"], "<Orchestrator>") + " " + styleText(["greenBright"], `{${socket}}`) + message
+			styleText(["magentaBright"], "<Orchestrator>") +
+				" " +
+				styleText(["greenBright"], `{${socket}}`) +
+				" " +
+				message
 		)
 	);
 
@@ -121,6 +126,7 @@ const serverWarnWithSocket = (
 			styleText(["cyanBright", "bold"], `<${server.id}:${server.type}>`) +
 				" " +
 				styleText(["greenBright"], `{${socket}}`) +
+				" " +
 				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
 		)
 	);
@@ -140,6 +146,7 @@ const orchestratorWarnWithSocket = (socket: string, ...message: any[]) =>
 			styleText(["magentaBright"], "<Orchestrator>") +
 				" " +
 				styleText(["greenBright"], `{${socket}}`) +
+				" " +
 				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
 		)
 	);
