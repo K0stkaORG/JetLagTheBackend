@@ -1,3 +1,4 @@
+import { GameServer } from "./GameServer/gameServer";
 import { styleText } from "node:util";
 
 const serverReady = () => {
@@ -32,8 +33,7 @@ ${styleText(
 `);
 };
 
-const withTimestamp = (message: string) =>
-	`${styleText(["gray", "dim"], `[${new Date().toLocaleString()}]`)} ${message}`;
+const withTimestamp = (message: string) => `${styleText(["gray"], `[${new Date().toLocaleString()}]`)} ${message}`;
 
 const flatten = (arr: any[], noPadding?: true) =>
 	arr
@@ -45,19 +45,101 @@ const flatten = (arr: any[], noPadding?: true) =>
 				: "\n" + new String(" ").repeat(new Date().toLocaleString().length + 3)
 		);
 
-const log = (...message: any[]) => console.log(withTimestamp(styleText(["gray"], flatten(message))));
+const log = (...message: any[]) => console.log(withTimestamp(flatten(message)));
 
-const logWithId = (id: string, ...message: any[]) =>
-	console.log(withTimestamp(styleText(["cyanBright"], `<${id}>`) + " " + styleText(["gray"], flatten(message))));
+const serverLog = (
+	server:
+		| GameServer
+		| {
+				id: string | number;
+				type: string;
+		  },
+	...message: any[]
+) => console.log(withTimestamp(styleText(["cyanBright"], `<${server.id}:${server.type}>`) + " " + message));
+
+const serverLogWithSocket = (
+	server:
+		| GameServer
+		| {
+				id: string | number;
+				type: string;
+		  },
+	socket: string,
+	...message: any[]
+) =>
+	console.log(
+		withTimestamp(
+			styleText(["cyanBright"], `<${server.id}:${server.type}>`) +
+				" " +
+				styleText(["greenBright"], `{${socket}}`) +
+				message
+		)
+	);
+
+const orchestratorLog = (...message: any[]) =>
+	console.log(withTimestamp(styleText(["magentaBright"], "<Orchestrator>") + " " + message));
+
+const orchestratorLogWithSocket = (socket: string, ...message: any[]) =>
+	console.log(
+		withTimestamp(
+			styleText(["magentaBright"], "<Orchestrator>") + " " + styleText(["greenBright"], `{${socket}}`) + message
+		)
+	);
 
 const warn = (...message: any[]) =>
 	console.log(withTimestamp(styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))));
 
-const warnWithId = (id: string, ...message: any[]) =>
+const serverWarn = (
+	server:
+		| GameServer
+		| {
+				id: string | number;
+				type: string;
+		  },
+	...message: any[]
+) =>
 	console.log(
 		withTimestamp(
-			styleText(["cyanBright", "bold"], `<${id}>`) +
+			styleText(["cyanBright", "bold"], `<${server.id}:${server.type}>`) +
 				" " +
+				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
+		)
+	);
+
+const serverWarnWithSocket = (
+	server:
+		| GameServer
+		| {
+				id: string | number;
+				type: string;
+		  },
+	socket: string,
+	...message: any[]
+) =>
+	console.log(
+		withTimestamp(
+			styleText(["cyanBright", "bold"], `<${server.id}:${server.type}>`) +
+				" " +
+				styleText(["greenBright"], `{${socket}}`) +
+				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
+		)
+	);
+
+const orchestratorWarn = (...message: any[]) =>
+	console.log(
+		withTimestamp(
+			styleText(["magentaBright"], "<Orchestrator>") +
+				" " +
+				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
+		)
+	);
+
+const orchestratorWarnWithSocket = (socket: string, ...message: any[]) =>
+	console.log(
+		withTimestamp(
+			styleText(["magentaBright"], "<Orchestrator>") +
+				" " +
+				styleText(["greenBright"], `{${socket}}`) +
 				styleText(["yellowBright", "bold", "italic"], "⚠️  Warning: " + flatten(message))
 		)
 	);
@@ -74,8 +156,18 @@ const error = (...message: any[]) => {
 export const io = {
 	serverReady,
 	log,
-	logWithId,
 	warn,
-	warnWithId,
 	error,
+	server: {
+		log: serverLog,
+		logWithSocket: serverLogWithSocket,
+		warn: serverWarn,
+		warnWithSocket: serverWarnWithSocket,
+	},
+	orchestrator: {
+		log: orchestratorLog,
+		logWithSocket: orchestratorLogWithSocket,
+		warn: orchestratorWarn,
+		warnWithSocket: orchestratorWarnWithSocket,
+	},
 };

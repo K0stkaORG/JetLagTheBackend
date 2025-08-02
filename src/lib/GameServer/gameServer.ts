@@ -46,6 +46,10 @@ export class GameServer {
 		return this.data.id;
 	}
 
+	public get type(): string {
+		return "HideAndSeek";
+	}
+
 	public get debug() {
 		return {
 			id: this.id,

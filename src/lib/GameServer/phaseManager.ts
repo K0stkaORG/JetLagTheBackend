@@ -17,7 +17,13 @@ export class PhaseManager {
 		const shouldHidingPhaseBeStarted = this.data.startsAt.getTime() <= Date.now() && this.data.state === "planned";
 
 		if (shouldHidingPhaseBeStarted) {
-			io.log(`Started hiding phase of game ${this.data.id}`);
+			io.server.log(
+				{
+					id: this.data.id,
+					type: "HideAndSeek",
+				},
+				`Started hiding phase`
+			);
 
 			return await this.startHidingPhase();
 		}
@@ -26,7 +32,13 @@ export class PhaseManager {
 			this.data.state === "hiding_phase" && this.data.fullDuration >= this.data.dataset.hidingTime * 60;
 
 		if (shouldMainPhaseBeStarted) {
-			io.log(`Started main phase of game ${this.data.id}`);
+			io.server.log(
+				{
+					id: this.data.id,
+					type: "HideAndSeek",
+				},
+				`Started main phase`
+			);
 
 			return await this.startMainPhase();
 		}
@@ -53,7 +65,13 @@ export class PhaseManager {
 		if (!["hiding_phase", "main_phase"].includes(this.data.state))
 			throw new Error("Hra není ve fázi, kterou lze pozastavit.");
 
-		io.log(`Paused game ${this.data.id}`);
+		io.server.log(
+			{
+				id: this.data.id,
+				type: "HideAndSeek",
+			},
+			`Paused game`
+		);
 
 		const now = this.secondsAlignedNow;
 
@@ -73,7 +91,13 @@ export class PhaseManager {
 	public async resume() {
 		if (this.data.state !== "paused") throw new Error("Hra není pozastavena.");
 
-		io.log(`Resumed game ${this.data.id}`);
+		io.server.log(
+			{
+				id: this.data.id,
+				type: "HideAndSeek",
+			},
+			`Resumed game`
+		);
 
 		const resumedState =
 			this.data.fullDuration >= this.data.dataset.hidingTime * 60 ? "main_phase" : "hiding_phase";

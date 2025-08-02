@@ -25,10 +25,10 @@ export class Orchestrator {
 		});
 
 		this.WS_SERVER.on("connection", async (socket) => {
-			io.logWithId(socket.id, "Connected to orchestrator");
+			io.orchestrator.logWithSocket(socket.id, "Connected to orchestrator");
 
 			const timeout = setTimeout(() => {
-				io.warnWithId(socket.id, "Failed to join a game within 10 seconds. Disconnecting...");
+				io.orchestrator.warnWithSocket(socket.id, "Failed to join a game within 10 seconds. Disconnecting...");
 
 				socket.emit("kick");
 
@@ -38,7 +38,7 @@ export class Orchestrator {
 			socket.on("join", joinPacketHandler(this, socket, timeout));
 
 			socket.on("disconnect", (reason) => {
-				io.logWithId(socket.id, `Disconnected. Reason: ${reason}`);
+				io.orchestrator.log({ socket: socket.id }, `Disconnected. Reason: ${reason}`);
 			});
 		});
 	}
@@ -85,13 +85,13 @@ export class Orchestrator {
 				this.serverIds.push(gameServer.id);
 				this.servers.set(gameServer.id, gameServer);
 
-				io.log(`Loaded game server for game ${game.id}`);
+				io.server.log(gameServer, `Loaded`);
 			})
 		);
 	}
 
 	public async restart() {
-		io.log("Restarting orchestrator...");
+		io.orchestrator.log("Restarting...");
 
 		this.loadServersLoop?.stop();
 

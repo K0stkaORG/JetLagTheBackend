@@ -37,8 +37,12 @@ export class SyncHandler {
 		if (this.UserToSocketLookup.has(userId)) {
 			const existingSocket = this.UserToSocketLookup.get(userId)!;
 
-			io.warn(
-				`User ${userId} is already connected to game ${this.gameId}. Replacing socket ${existingSocket.id} with ${socket.id}`
+			io.server.warn(
+				{
+					id: this.gameId,
+					type: "HideAndSeek",
+				},
+				`User ${userId} is already connected. Replacing socket ${existingSocket.id} with ${socket.id}`
 			);
 
 			existingSocket.emit("replaced");
@@ -62,12 +66,26 @@ export class SyncHandler {
 				throw new Error(`Unknown team: ${team}`);
 		}
 
-		io.logWithId(socket.id, `User ${userId} joined game ${this.gameId} as ${team}`);
+		io.server.logWithSocket(
+			{
+				id: this.gameId,
+				type: "HideAndSeek",
+			},
+			socket.id,
+			`User ${userId} joined as ${team}`
+		);
 
 		socket.emit("joined", data.joinPacket);
 
 		socket.on("disconnect", () => {
-			io.logWithId(socket.id, `User ${userId} disconnected from game ${this.gameId}`);
+			io.server.logWithSocket(
+				{
+					id: this.gameId,
+					type: "HideAndSeek",
+				},
+				socket.id,
+				`User ${userId} disconnected`
+			);
 
 			this.SocketToUserLookup.delete(socket.id);
 			this.UserToSocketLookup.delete(userId);

@@ -15,7 +15,14 @@ export const joinPacketHandler =
 		try {
 			parsed = JOIN_GAME_SERVER_PACKET.parse(data);
 		} catch (error) {
-			io.warnWithId(socket.id, `Sent malformed join packet`, "", z.prettifyError(error as ZodError), "", data);
+			io.orchestrator.warnWithSocket(
+				socket.id,
+				`Sent malformed join packet`,
+				"",
+				z.prettifyError(error as ZodError),
+				"",
+				data
+			);
 			socket.disconnect(true);
 			return;
 		}
@@ -23,7 +30,7 @@ export const joinPacketHandler =
 		const userId = await verifyJWT(parsed.token);
 
 		if (userId === null) {
-			io.warnWithId(socket.id, `Sent an invalid auth token in a join packet`, "", data);
+			io.orchestrator.warnWithSocket(socket.id, `Sent an invalid auth token in a join packet`, "", data);
 			socket.disconnect(true);
 			return;
 		}
@@ -31,7 +38,7 @@ export const joinPacketHandler =
 		const gameServer = orchestrator.getServerById(parsed.gameId);
 
 		if (!gameServer) {
-			io.warnWithId(socket.id, `Tried to join a non-existent game server, kicking...`, "", data);
+			io.orchestrator.warnWithSocket(socket.id, `Tried to join a non-existent game server, kicking...`, "", data);
 
 			socket.emit("kick");
 
@@ -40,7 +47,12 @@ export const joinPacketHandler =
 		}
 
 		if (!gameServer.isJoinableByUser(userId)) {
-			io.warnWithId(socket.id, `Tried to join a game server they are not allowed to join, kicking...`, "", data);
+			io.orchestrator.warnWithSocket(
+				socket.id,
+				`Tried to join a game server they are not allowed to join, kicking...`,
+				"",
+				data
+			);
 
 			socket.emit("kick");
 
