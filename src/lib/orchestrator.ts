@@ -38,7 +38,7 @@ export class Orchestrator {
 			socket.on("join", joinPacketHandler(this, socket, timeout));
 
 			socket.on("disconnect", (reason) => {
-				io.orchestrator.log({ socket: socket.id }, `Disconnected. Reason: ${reason}`);
+				io.orchestrator.logWithSocket(socket.id, `Disconnected. Reason: ${reason}`);
 			});
 		});
 	}
